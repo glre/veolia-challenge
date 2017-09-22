@@ -76,7 +76,6 @@ def vectorialization(df,colName):
     
     
 def Featuring(I):
-    # pour l'instant, on vire les colonnes catégoriques et on fill les nan avec des 0
     categorical_columns = [d for d in I.columns if I[d].dtype=='object']
     for d in categorical_columns:
         vectorialization(I,d)
