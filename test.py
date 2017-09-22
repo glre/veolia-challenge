@@ -80,17 +80,23 @@ def writeOutput(M):
     resultat = pd.DataFrame({"Id": GoalTemp["Id"], "2014": prediction, "2015": prediction})
     resultat.to_csv("test.csv", sep=";", columns=["Id", "2014", "2015"], index=False)
 
-    
+#faire tourner plein de fois le même modèle et sélectionner le meilleur.
+def naturalSelection(n):
+    print("TODO man")
+
 Featuring(In)
 Featuring(Goal)
 
-X_train, X_test, y_train, y_test = CutData(In, Out)
-
-M = Logit()
-M.fit(X_train, y_train)
-pred = M.predict_proba(X_test)[:,1]
-res = pd.DataFrame({"Id": list(range(len(pred))), "2014": pred, "2015": pred})
-res.to_csv("test.csv", sep=";", columns=["Id", "2014", "2015"], index=False)
+for i in range(10):
+    X_train, X_test, y_train, y_test = CutData(In, Out)
+    M = Logit()
+    M.fit(X_train, y_train)
+    testModel(M,X_test,y_test)
+    testModel(M,In,Out)
+    print("##################")
+#pred = M.predict_proba(X_test)[:,1]
+#res = pd.DataFrame({"Id": list(range(len(pred))), "2014": pred, "2015": pred})
+#res.to_csv("test.csv", sep=";", columns=["Id", "2014", "2015"], index=False)
 
 
 
