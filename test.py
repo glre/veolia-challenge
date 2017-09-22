@@ -13,6 +13,7 @@ from sklearn.neural_network import MLPClassifier
 from sklearn.model_selection import train_test_split
 
 from public_auc_veolia2 import score_function
+from sklearn.metrics import roc_auc_score
 
 # Reading Data. In et Out n'ont pas les Id
 InTemp = pd.read_csv("data/inputTrain.csv")
@@ -20,7 +21,7 @@ In = InTemp.iloc[:,1:]
 OutTemp = pd.read_csv("data/outputTrain.csv")
 Out = OutTemp.iloc[:,1:]
 GoalTemp = pd.read_csv("data/inputTest.csv")
-Goal = GoalTemp[:,1:]
+Goal = GoalTemp.iloc[:,1:]
 # End reading
 
 
@@ -56,7 +57,7 @@ def Featuring(I):
     # pour l'instant, on vire les colonnes catégoriques et on fill les nan avec des 0
     categorical_columns = [d for d in I.columns if I[d].dtype=='object']
     for d in categorical_columns:
-        del In[d]
+        del I[d]
     I.fillna(0,inplace=True)
     
 def model():
@@ -67,7 +68,23 @@ def learn(M,I,O):
     M.fit(I,O)
 
 
+def testModel(M,X_test,y_test):
+    pred = M.predict_proba(X_test)[:,1]
+    res = pd.DataFrame({"Id": list(range(len(pred))), "2014": pred, "2015": pred})
+    print(pred)
+    print(res)
+    print(roc_auc_score(y_test.iloc[:,0],res.iloc[:,0]))
+    print(roc_auc_score(y_test.iloc[:,1],res.iloc[:,1]))
+
+
+def writeOutput(M):
+    prediction = M.predict_proba(Goal)[:,1]
+    resultat = pd.DataFrame({"Id": GoalTemp["Id"], "2014": prediction, "2015": prediction})
+    resultat.to_csv("test.csv", sep=";", columns=["Id", "2014", "2015"], index=False)
+
+    
 Featuring(In)
+Featuring(Goal)
 
 X_train, X_test, y_train, y_test = CutData(In, Out)
 
@@ -76,5 +93,7 @@ M.fit(X_train, y_train)
 pred = M.predict_proba(X_test)[:,1]
 res = pd.DataFrame({"Id": list(range(len(pred))), "2014": pred, "2015": pred})
 res.to_csv("test.csv", sep=";", columns=["Id", "2014", "2015"], index=False)
+
+
 
 
