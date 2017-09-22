@@ -53,12 +53,37 @@ def CutData(In,Out):
     return (X_train, X_test, y_train, y_test)
 
 
-def Featuring(I):
-    # pour l'instant, on vire les colonnes catégoriques et on fill les nan avec des 0
+def FeaturingSimple(I):
+    # For now, don't use categorical features + nan -> 0
     categorical_columns = [d for d in I.columns if I[d].dtype=='object']
     for d in categorical_columns:
         del I[d]
     I.fillna(0,inplace=True)
+
+# Given a dataframe df, and a column name cN whose objects are categorical, vectorialize them 
+def vectorialization(df,colName):
+    s = set() # The set of all kind of object we can find
+    for i in range(len(df)):
+        s.add(df[colName].iloc[i])
+    l = list(s)
+    for i in range(len(s)):
+        df[colName + str(i)] = 0
+    for i in range(len(df)):
+        index = l.index(df[colName].iloc[i])
+        df.iloc[i,-index-1] = 1
+    del df[colName]
+        
+    
+    
+def Featuring(I):
+    # pour l'instant, on vire les colonnes catégoriques et on fill les nan avec des 0
+    categorical_columns = [d for d in I.columns if I[d].dtype=='object']
+    for d in categorical_columns:
+        vectorialization(I,d)
+    I.fillna(0,inplace=True)
+    ## On catégorise l'année de construction, peut-être qu'il faudra le virer
+    vectorialization(I, "YearConstruction")
+
     
 def model():
     M = Logit()
