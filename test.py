@@ -81,7 +81,7 @@ def Featuring(I):
         vectorialization(I,d)
     I.fillna(0,inplace=True)
     ## On catégorise l'année de construction, peut-être qu'il faudra le virer
-    vectorialization(I, "YearConstruction")
+    # vectorialization(I, "YearConstruction")
 
     
 def model():
