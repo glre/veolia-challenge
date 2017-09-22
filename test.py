@@ -71,8 +71,6 @@ def learn(M,I,O):
 def testModel(M,X_test,y_test):
     pred = M.predict_proba(X_test)[:,1]
     res = pd.DataFrame({"Id": list(range(len(pred))), "2014": pred, "2015": pred})
-    print(pred)
-    print(res)
     print(roc_auc_score(y_test.iloc[:,0],res.iloc[:,0]))
     print(roc_auc_score(y_test.iloc[:,1],res.iloc[:,1]))
 
