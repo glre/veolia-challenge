@@ -27,7 +27,7 @@ Goal = GoalTemp.iloc[:,1:]
 
 # Cut data into training set and test set, to do cross validation
 # Return a training set, a test set
-def CutData(In,Out):    
+def CutData(In,Out,ratio):    
     indexOnes = [i for i in range(len(Out)) if (Out.iloc[i]["2014"] == 1 or Out.iloc[i]["2015"] == 1)]
     indexNotOnes = list(set(range(len(Out))) - set(indexOnes))
 
@@ -36,8 +36,8 @@ def CutData(In,Out):
     InNotOnes = In.iloc[indexNotOnes]
     OutNotOnes = Out.iloc[indexNotOnes]
     
-    XOnes_train, XOnes_test, yOnes_train, yOnes_test = train_test_split(InOnes, OutOnes, test_size=0.4, random_state=None)
-    XNotOnes_train, XNotOnes_test, yNotOnes_train, yNotOnes_test = train_test_split(InNotOnes, OutNotOnes, test_size=0.4, random_state=None)
+    XOnes_train, XOnes_test, yOnes_train, yOnes_test = train_test_split(InOnes, OutOnes, test_size=ratio, random_state=None)
+    XNotOnes_train, XNotOnes_test, yNotOnes_train, yNotOnes_test = train_test_split(InNotOnes, OutNotOnes, test_size=ratio, random_state=None)
 
     del yOnes_train["2014"]
     yOnes_train["2015"] = 1
@@ -73,9 +73,9 @@ def vectorialization(df,colName):
         df.iloc[i,-index-1] = 1
     del df[colName]
         
-    
-    
+
 def Featuring(I):
+    del I["Feature4"]
     categorical_columns = [d for d in I.columns if I[d].dtype=='object']
     for d in categorical_columns:
         vectorialization(I,d)
@@ -111,19 +111,25 @@ def naturalSelection(n):
 Featuring(In)
 Featuring(Goal)
 
-for i in range(10):
-    X_train, X_test, y_train, y_test = CutData(In, Out)
-    M = Logit()
-    M.fit(X_train, y_train)
-    testModel(M,X_test,y_test)
-    testModel(M,In,Out)
-    var = input("we take it dude?(y/q : Yes, Quit)")
-    if var == "y":
-        var2 = input("name of the output?")
-        writeOutput(M,var2)
-    if var == "q":
-        break
-    print("##################")
+X_train, X_test, y_train, y_test = CutData(In, Out,0)
+M = Logit()
+M.fit(X_train, y_train)
+writeOutput(M,"ceciestuntestdebrute")
+
+def launch(N,ratio):
+    for i in range(N):
+        X_train, X_test, y_train, y_test = CutData(In, Out,ratio)
+        M = Logit()
+        M.fit(X_train, y_train)
+        testModel(M,X_test,y_test)
+        testModel(M,In,Out)
+        var = input("we take it dude?(y/q : Yes, Quit)")
+        if var == "y":
+            var2 = input("name of the output?")
+            writeOutput(M,var2)
+        if var == "q":
+            break
+        print("##################")
 #pred = M.predict_proba(X_test)[:,1]
 #res = pd.DataFrame({"Id": list(range(len(pred))), "2014": pred, "2015": pred})
 #res.to_csv("test.csv", sep=";", columns=["Id", "2014", "2015"], index=False)
