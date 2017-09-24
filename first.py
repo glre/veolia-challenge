@@ -91,7 +91,6 @@ def vectorialization(df,colName):
 # + replace nan by 0
 # The selection of features is made by testFeatures
 def Featuring(I):
-#    del I["Feature4"]
     categorical_columns = [d for d in I.columns if I[d].dtype=='object']
     for d in categorical_columns:
         vectorialization(I,d)
@@ -99,6 +98,16 @@ def Featuring(I):
     ## On catégorise l'année de construction, peut-être qu'il faudra le virer
     #vectorialization(I, "YearConstruction")
 
+
+def bestFeaturing(I):
+    del I["Feature4"] # a priori, c'est ce qui marche le mieux pour l'instant
+    categorical_columns = [d for d in I.columns if I[d].dtype=='object']
+    for d in categorical_columns:
+        vectorialization(I,d)
+    I.fillna(0,inplace=True)
+    ## TODO, faire exponentiation pour la longueur
+
+    
 # test all i-subsets of features over the model M
 # repeat N tests over all possible subsets
 def testFeatures(M,I,i,N):
