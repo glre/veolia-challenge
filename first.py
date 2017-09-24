@@ -104,6 +104,9 @@ def testFeatures(M,I,i,N):
     for l in subsets:
         print("###############")
         print("###############")
+        print("features present:")
+        print(set(I.columns) - set(l))
+        print("features missing:")
         print(l)
         print()
         I2 = I.copy()
