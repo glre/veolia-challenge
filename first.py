@@ -4,21 +4,22 @@ import matplotlib.pyplot as plt
 import time
 import math
 
-import sklearn as sk
-import scikitplot as skplt
 import random
 
 import itertools as it
 
-# MODELS
+# SKLEARN
+import sklearn as sk
+import scikitplot as skplt
 from sklearn.linear_model import LogisticRegression as Logit
 from sklearn.neural_network import MLPClassifier
 from sklearn.model_selection import train_test_split
-# End Models
-
-# Score functione
-from public_auc_veolia2 import score_function
 from sklearn.metrics import roc_auc_score
+# End SKLEARN
+
+# Score function
+from public_auc_veolia2 import score_function
+
 
 # Reading Data. In, Out and Goal do not have the "Id" column.
 InTemp = pd.read_csv("data/inputTrain.csv")
@@ -86,7 +87,9 @@ def vectorialization(df,colName):
         df.iloc[i,-index-1] = 1
     del df[colName]
         
-
+# transform categorical into vectors
+# + replace nan by 0
+# The selection of features is made by testFeatures
 def Featuring(I):
 #    del I["Feature4"]
     categorical_columns = [d for d in I.columns if I[d].dtype=='object']
@@ -97,7 +100,7 @@ def Featuring(I):
     #vectorialization(I, "YearConstruction")
 
 # test all i-subsets of features over the model M
-# repeat N tests over all possible subset
+# repeat N tests over all possible subsets
 def testFeatures(M,I,i,N):
     nb = len(I.columns)
     subsets = list(map(set,list(findsubsets(I.columns,nb-i))))
