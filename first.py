@@ -5,17 +5,22 @@ import time
 import math
 
 import sklearn as sk
+import scikitplot as skplt
 import random
+
+import itertools as it
 
 # MODELS
 from sklearn.linear_model import LogisticRegression as Logit
 from sklearn.neural_network import MLPClassifier
 from sklearn.model_selection import train_test_split
+# End Models
 
+# Score functione
 from public_auc_veolia2 import score_function
 from sklearn.metrics import roc_auc_score
 
-# Reading Data. In et Out n'ont pas les Id
+# Reading Data. In, Out and Goal do not have the "Id" column.
 InTemp = pd.read_csv("data/inputTrain.csv")
 In = InTemp.iloc[:,1:]
 OutTemp = pd.read_csv("data/outputTrain.csv")
@@ -24,6 +29,15 @@ GoalTemp = pd.read_csv("data/inputTest.csv")
 Goal = GoalTemp.iloc[:,1:]
 # End reading
 
+
+# Some tools
+def powerset(iterable):
+    s = list(iterable)
+    return it.chain.from_iterable(it.combinations(s,r) for r in range(len(s)+1))
+
+
+def findsubsets(S,m):
+    return set(it.combinations(S, m))
 
 # Cut data into training set and test set, to do cross validation
 # Return a training set, a test set
@@ -42,7 +56,6 @@ def CutData(In,Out,ratio):
     del yOnes_train["2014"]
     yOnes_train["2015"] = 1
     del yNotOnes_train["2014"]
-
     
     X_train = pd.concat([XOnes_train,XNotOnes_train])
     X_test = pd.concat([XOnes_test,XNotOnes_test])
@@ -75,7 +88,7 @@ def vectorialization(df,colName):
         
 
 def Featuring(I):
-    del I["Feature4"]
+#    del I["Feature4"]
     categorical_columns = [d for d in I.columns if I[d].dtype=='object']
     for d in categorical_columns:
         vectorialization(I,d)
@@ -83,7 +96,31 @@ def Featuring(I):
     ## On catégorise l'année de construction, peut-être qu'il faudra le virer
     #vectorialization(I, "YearConstruction")
 
+# test all i-subsets of features over the model M
+# repeat N tests over all possible subset
+def testFeatures(M,I,i,N):
+    nb = len(I.columns)
+    subsets = list(map(set,list(findsubsets(I.columns,nb-i))))
+    for l in subsets:
+        print("###############")
+        print("###############")
+        print(l)
+        print()
+        I2 = I.copy()
+        for e in l:
+            del I2[e]
+        Featuring(I2)
+        for _ in range(N):
+            print("test numéro "+ str(_))
+            print()
+            X_train, X_test, y_train, y_test = CutData(I2, Out,0.4)
+            M = Logit()
+            M.fit(X_train, y_train)
+            testModel(M,X_test,y_test)
+            testModel(M,I2,Out)        
     
+
+
 def model():
     M = Logit()
     return M
@@ -97,8 +134,7 @@ def testModel(M,X_test,y_test):
     res = pd.DataFrame({"Id": list(range(len(pred))), "2014": pred, "2015": pred})
     print(roc_auc_score(y_test.iloc[:,0],res.iloc[:,0]))
     print(roc_auc_score(y_test.iloc[:,1],res.iloc[:,1]))
-
-
+    
 def writeOutput(M,name):
     prediction = M.predict_proba(Goal)[:,1]
     resultat = pd.DataFrame({"Id": GoalTemp["Id"], "2014": prediction, "2015": prediction})
@@ -108,13 +144,14 @@ def writeOutput(M,name):
 def naturalSelection(n):
     print("TODO man")
 
-Featuring(In)
-Featuring(Goal)
+#Featuring(In)
+#Featuring(Goal)
 
-X_train, X_test, y_train, y_test = CutData(In, Out,0)
-M = Logit()
-M.fit(X_train, y_train)
-writeOutput(M,"ceciestuntestdebrute")
+
+#X_train, X_test, y_train, y_test = CutData(In, Out,0)
+#M = Logit()
+#M.fit(X_train, y_train)
+#writeOutput(M,"ceciestuntestdebrute")
 
 def launch(N,ratio):
     for i in range(N):
@@ -133,7 +170,4 @@ def launch(N,ratio):
 #pred = M.predict_proba(X_test)[:,1]
 #res = pd.DataFrame({"Id": list(range(len(pred))), "2014": pred, "2015": pred})
 #res.to_csv("test.csv", sep=";", columns=["Id", "2014", "2015"], index=False)
-
-
-
 
