@@ -1,1 +1,0 @@
-# veolia-challenge
