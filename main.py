@@ -41,7 +41,7 @@ def prediction(M, X, Y, Goal,name):
     resultat.to_csv("result/" + (name + ".csv"), sep=";", columns=["Id", "2014", "2015"], index=False)
 
 
-    
+R2 = 3
 R = Reading() # Reading data
 X = featuringInput(R.train) #Featuring In
 Goal = R.test
@@ -57,6 +57,7 @@ MLP = MLPClassifier(activation='logistic', max_iter=6000000, learning_rate_init=
 # MLP2 semble foncionner super bien !
 MLP2 = MLPClassifier(activation='logistic', max_iter=6000000, learning_rate_init=0.0001, tol = 1e-10 , hidden_layer_sizes=[10,10])
 S.add(MLP2)
+clf = svm.SVC(probability=True)
 #testModels(S,X,Y,5)
 #prediction(MLP,X,Y,Goal,"hahaha")
 
