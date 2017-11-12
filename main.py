@@ -15,6 +15,7 @@ from sklearn.neural_network import MLPClassifier
 from sklearn.ensemble import GradientBoostingClassifier as GradB
 from sklearn.ensemble import RandomForestClassifier as Forest
 from sklearn.model_selection import train_test_split
+from sklearn.ensemble import AdaBoostClassifier
 from sklearn.metrics import roc_auc_score
 from sklearn import svm
 from sklearn.preprocessing import StandardScaler
@@ -48,16 +49,17 @@ Goal = R.test
 Y = R.output
 xtrain,xtest,ytrain,ytest = CutData(X,Y,0.4)
 M = Logit()
+M = AdaBoostClassifier(n_estimators=10)
 #learning(M,xtrain,ytrain)
 #pred = M.predict_proba(xtest)[:,0]
 S = set()
 #M = Logit()
 #M2 = GradB()
-MLP = MLPClassifier(activation='logistic', max_iter=6000000, learning_rate_init=0.0001, tol = 1e-10)
+#MLP = MLPClassifier(activation='logistic', max_iter=6000000, learning_rate_init=0.0001, tol = 1e-10)
 # MLP2 semble foncionner super bien !
-MLP2 = MLPClassifier(activation='logistic', max_iter=6000000, learning_rate_init=0.0001, tol = 1e-10 , hidden_layer_sizes=[10,10])
-S.add(MLP2)
-clf = svm.SVC(probability=True)
+#MLP2 = MLPClassifier(activation='logistic', max_iter=6000000, learning_rate_init=0.0001, tol = 1e-10 , hidden_layer_sizes=[10,10])
+S.add(M)
+#clf = svm.SVC(probability=True)
 #testModels(S,X,Y,5)
 #prediction(MLP,X,Y,Goal,"hahaha")
 
